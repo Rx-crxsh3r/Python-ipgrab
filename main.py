@@ -1,6 +1,7 @@
 
 import socket
 import os
+import requests
 
 def get_ip():
     """Get the local IP address of the machine."""
@@ -42,14 +43,25 @@ def ping_ip(ip):
     response = os.system(f"ping -c 1 -W 1 {ip}" if os.name != 'nt' else f"ping -n 1 -w 1 {ip}")
     return response == 0
 
+def get_public_ip():
+    """Get the public IP address of the machine."""
+    try:
+        response = requests.get('https://api.ipify.org?format=json')
+        public_ip = response.json()['ip']
+    except requests.RequestException:
+        public_ip = "Could not retrieve public IP"
+    return public_ip
+
 def main():
     print("Welcome to the Network Utility App!")
     print("Please choose one of the following options:")
     print("1. Get Local IP Address")
     print("2. Check if a Port is Open on a Given IP Address")
     print("3. Get Hostname of a Given IP Address")
+    print("4. Get Public IP Address")
+
     
-    choice = input("Enter your choice (1, 2, or 3): ")
+    choice = input("Enter your choice (1, 2, 3, or 4): ")
 
     if choice == '1':
         local_ip = get_ip()
@@ -77,6 +89,11 @@ def main():
             else:
                 print(f"IP address {target_ip} is not reachable.")
             retry = input("Do you want to try another IP address? (yes/no): ").strip().lower()
+        if retry == 'no':
+            print("Exiting the program.")
+    elif choice == '4':
+        public_ip = get_public_ip()
+        print(f"Your public IP address is: {public_ip}")
     else:
         print("Invalid choice. Please run the program again and enter either 1, 2, or 3.")
 
